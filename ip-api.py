@@ -1,11 +1,12 @@
+import argparse
 import json
 import requests
 import os
 
-def search():
+def search(host):
     main_api = 'http://ip-api.com/json/'
 
-    ip = findMX()
+    ip = findMX(host)
     for host in ip:
         json_data = requests.get(main_api + host).json()
 
@@ -17,8 +18,7 @@ def search():
             json_data['query'],
             host))
 
-def findMX():
-    host = input("Who do you want to look up?: ")
+def findMX(host):
     p = os.popen('host -t MX ' + host)
 
     #initialize dicts
@@ -39,4 +39,10 @@ def findMX():
         MXServer.append(split[6])
         i = i + 1
     return MXServer
-search()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("host", help="hostname to lookip")
+    args = parser.parse_args()
+
+    search(args.host)
