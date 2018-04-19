@@ -51,8 +51,7 @@ if __name__ == "__main__":
     parser.add_argument("host", help="hostname to lookip")
     args = parser.parse_args()
     # If the arg is an IP address go straight to API
-    if re.fullmatch(args.host,
-                    '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'):
-        query_api(args.host)
+    if re.search('[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}', args.host):
+        query_api([args.host])
     else:
         findMX(args.host)
