@@ -11,10 +11,10 @@ def query_api(host):
         json_data = requests.get(main_api + x).json()
         # Print out wanted JSON data formatted nicely
         print('\nCity\State: {}, {}\n'
-              'Country:   {}\n'
-              'ISP:       {}\n'
-              'IP:        {}\n'
-              'MX:        {}'.format(
+              'Country:    {}\n'
+              'ISP:        {}\n'
+              'IP:         {}\n'
+              'MX:         {}'.format(
                json_data['city'],
                json_data['regionName'],
                json_data['country'],
