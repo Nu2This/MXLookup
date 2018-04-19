@@ -1,48 +1,58 @@
 import argparse
-import json
 import requests
 import os
+import re
 
-def search(host):
+
+def query_api(host):
     main_api = 'http://ip-api.com/json/'
+    # For every host do an API request
+    for x in host:
+        json_data = requests.get(main_api + x).json()
+        # Print out wanted JSON data formatted nicely
+        print('\nCity\State: {}, {}\n'
+              'Country:   {}\n'
+              'ISP:       {}\n'
+              'IP:        {}\n'
+              'MX:        {}'.format(
+               json_data['city'],
+               json_data['regionName'],
+               json_data['country'],
+               json_data['isp'],
+               json_data['query'],
+               x))
 
-    ip = findMX(host)
-    for host in ip:
-        json_data = requests.get(main_api + host).json()
-
-        print('\nCity\State: {}, {}\n Country:   {}\n ISP:       {}\n IP:        {}\n MX:        {}'.format(
-            json_data['city'],
-            json_data['regionName'],
-            json_data['country'],
-            json_data['isp'],
-            json_data['query'],
-            host))
 
 def findMX(host):
     p = os.popen('host -t MX ' + host)
 
-    #initialize dicts
+    # initialize dicts
     std_out = []
     split = []
     MXServer = []
 
-    #append terminal output to variable std_out
+    # append terminal output to variable std_out
     for line in p:
         std_out.append(line)
     p.close
 
-    #create iterator
+    # create iterator
     i = 0
-    #split line into dict and return MX servers
+    # split line into dict and return MX servers
     for x in std_out:
         split = std_out[i].split()
-        MXServer.append(split[6])
+        MXServer.append(split[-1])
         i = i + 1
-    return MXServer
+    query_api(MXServer)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("host", help="hostname to lookip")
     args = parser.parse_args()
-
-    search(args.host)
+    # If the arg is an IP address go straight to API
+    if re.fullmatch(args.host,
+                    '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'):
+        query_api(args.host)
+    else:
+        findMX(args.host)
