@@ -34,8 +34,8 @@ def findMX(host):
     # append terminal output to variable std_out
     for line in p:
         if re.search('not found', line):
-             query_api([host])
-             break
+            query_api([host])
+            break
         std_out.append(line)
     p.close
 
