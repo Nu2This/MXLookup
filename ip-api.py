@@ -33,6 +33,9 @@ def findMX(host):
 
     # append terminal output to variable std_out
     for line in p:
+        if re.search('not found', line):
+             query_api([host])
+             break
         std_out.append(line)
     p.close
 
@@ -50,8 +53,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("host", help="hostname to lookip")
     args = parser.parse_args()
-    # If the arg is an IP address go straight to API
-    if re.search('[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}', args.host):
-        query_api([args.host])
-    else:
-        findMX(args.host)
+    findMX(args.host)
