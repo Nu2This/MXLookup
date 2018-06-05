@@ -36,6 +36,12 @@ def findMX(host):
         if re.search('not found', line):
             query_api([host])
             break
+        elif re.search('domain name pointer', line):
+            query_api([host])
+            extra = re.search('.in-addr.arpa .*',str(line))
+            thing = line.replace(extra.group(0), '')
+            query_api([thing.rstrip()])
+            break
         std_out.append(line)
     p.close
 
