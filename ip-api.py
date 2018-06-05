@@ -2,25 +2,37 @@ import argparse
 import requests
 import os
 import re
+import sys
+import traceback
 
 
 def query_api(host):
     main_api = 'http://ip-api.com/json/'
     # For every host do an API request
-    for x in host:
-        json_data = requests.get(main_api + x).json()
-        # Print out wanted JSON data formatted nicely
-        print('\nCity\State: {}, {}\n'
-              'Country:    {}\n'
-              'ISP:        {}\n'
-              'IP:         {}\n'
-              'MX:         {}'.format(
-               json_data['city'],
-               json_data['regionName'],
-               json_data['country'],
-               json_data['isp'],
-               json_data['query'],
-               x))
+    try:
+        for x in host:
+            json_data = requests.get(main_api + x).json()
+            if 'message' in json_data:
+                print('\nThe IP "{}" is {}'.format(x,
+                                          json_data['message']))
+            # Print out wanted JSON data formatted nicely
+            else:
+                print('\nCity\State: {}, {}\n'
+                      'Country:    {}\n'
+                      'ISP:        {}\n'
+                      'IP:         {}\n'
+                      'MX:         {}'.format(
+                       json_data['city'],
+                       json_data['regionName'],
+                       json_data['country'],
+                       json_data['isp'],
+                       json_data['query'],
+                       x))
+    except KeyError:
+        traceback.print_exc(file=sys.stdout)
+        print('Key Error')
+        print('JSON: ')
+        print(json_data)
 
 
 def findMX(host):
