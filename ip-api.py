@@ -13,9 +13,11 @@ def query_api(host):
     # For every host do an API request
     try:
         for x in host:
+            # Store response in 'json_data'
             json_data = requests.get(main_api + x).json()
             # Checks to see if there is a 'message' field in the json data and
-            # prints the message instead of doing a query
+            # prints the message instead of printing our formatted data.
+            # This is done because messages are always an error with this api.
             if 'message' in json_data:
                 print('\nThe IP "{}" is {}'.format(x, json_data['message']))
             # Print out wanted JSON data formatted nicely
@@ -48,16 +50,19 @@ def findMX(host):
 
     # initialize dicts
     std_out = []
+    # Stores the standard output of p(above)
     split = []
+    # Used to hold the a line in std_out that we want to split.
     MXServer = []
+    # The server address that we are sending to the api. 
 
-    # append terminal output to variable std_out
+    # Append terminal output to list std_out
     for line in p:
         if re.search('not found', line):
             print('No MX record found querying ' + host)
             query_api([host])
             break
-        # Checks to see if 'domain name pointer' is in the line and finds the
+        # Check to see if 'domain name pointer' is in the line and finds the
         # ip associated with the pointer to do a query on. Created for IPs that
         # do not have a easily parsed MX record return.
         elif re.search('domain name pointer', line):
@@ -65,7 +70,12 @@ def findMX(host):
             print('Domain name pointer found querying original host: ' + host)
             query_api([host])
             extra = re.search('.in-addr.arpa .*', str(line))
+            # This finds out the 'extra' stuff I dont really care about. i only
+            # need the IP that is in the line before .in-addr.arpa
             thing = line.replace(extra.group(0), '')
+            # This takes the line and replaces what is stored in the 'extra'
+            # variable with nothing and gives us the 'thing' we want to query,
+            # an IP address.
             print('\nDomain Name pointer Query: ' + thing)
             query_api([thing.rstrip()])
             break
@@ -87,7 +97,7 @@ def findMX(host):
         # We use .split() method to split the std_out list entry by spaces
 
         MXServer.append(split[-1])
-        # We take the last item in the split(aspmx.l.google.com) and append it 
+        # We take the last item in the split(aspmx.l.google.com) and append it
         # to the list 'MXServer'
     query_api(MXServer)
     # Now we send the list 'MXServer' to the query_api function
