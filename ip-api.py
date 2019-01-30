@@ -20,11 +20,13 @@ def query_api(host):
                 print('\nThe IP "{}" is {}'.format(x, json_data['message']))
             # Print out wanted JSON data formatted nicely
             else:
-                print('\nCity\State: {}, {}\n'
+                print('\nAS:         {}\n'
+                      'City\State: {}, {}\n'
                       'Country:    {}\n'
                       'ISP:        {}\n'
                       'IP:         {}\n'
                       'MX:         {}'.format(
+                       json_data['as'],
                        json_data['city'],
                        json_data['regionName'],
                        json_data['country'],
@@ -52,28 +54,43 @@ def findMX(host):
     # append terminal output to variable std_out
     for line in p:
         if re.search('not found', line):
+            print('No MX record found querying ' + host)
             query_api([host])
             break
-        # Checs to see if 'domain name pointer' is in the line and finds the ip
-        # associated with the pointer to do a query on. Created for IPs that do
-        # not have a easily parsed MX record return.
+        # Checks to see if 'domain name pointer' is in the line and finds the
+        # ip associated with the pointer to do a query on. Created for IPs that
+        # do not have a easily parsed MX record return.
         elif re.search('domain name pointer', line):
+            print(line)
+            print('Domain name pointer found querying original host: ' + host)
             query_api([host])
             extra = re.search('.in-addr.arpa .*', str(line))
             thing = line.replace(extra.group(0), '')
+            print('\nDomain Name pointer Query: ' + thing)
             query_api([thing.rstrip()])
             break
         std_out.append(line)
     p.close
 
-    # create iterator
-    i = 0
     # split line into dict and return MX servers
     for x in std_out:
-        split = std_out[i].split()
+        # When using os.popen it basically acts like a terminal allowing you to
+        # run terminal commands from your Python script and use its output. We
+        # are using as an example 'host -t MX google.com' the output would look
+        # like:
+        # google.com mail is handled by 30 alt2.aspmx.l.google.com
+        # google.com mail is handled by 40 alt3.aspmx.l.google.com
+        # google.com mail is handled by 10 aspmx.l.google.com
+        # google.com mail is handled by 20 alt1.aspmx.l.google.com
+        # google.com mail is handled by 50 alt4.aspmx.l.google.com
+        split = std_out[x].split()
+        # We use .split() method to split the std_out list entry by spaces
+
         MXServer.append(split[-1])
-        i = i + 1
+        # We take the last item in the split(aspmx.l.google.com) and append it 
+        # to the list 'MXServer'
     query_api(MXServer)
+    # Now we send the list 'MXServer' to the query_api function
 
 
 if __name__ == "__main__":
