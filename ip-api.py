@@ -83,6 +83,7 @@ def findMX(host):
     p.close
 
     # split line into dict and return MX servers
+    i = 0
     for x in std_out:
         # When using os.popen it basically acts like a terminal allowing you to
         # run terminal commands from your Python script and use its output. We
@@ -93,7 +94,8 @@ def findMX(host):
         # google.com mail is handled by 10 aspmx.l.google.com
         # google.com mail is handled by 20 alt1.aspmx.l.google.com
         # google.com mail is handled by 50 alt4.aspmx.l.google.com
-        split = std_out[x].split()
+        split = std_out[i].split()
+        i = i + 1
         # We use .split() method to split the std_out list entry by spaces
 
         MXServer.append(split[-1])
